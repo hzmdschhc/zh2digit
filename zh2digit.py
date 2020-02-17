@@ -30,6 +30,11 @@ def to_digit(zh):
                 if ch not in _carry:
                     # 是一个数字，不是'万千百十'
                     if ch != '零':
+                        if (i-1 >= 0
+                            and zh[i-1] in _zh2digit_base
+                            and zh[i-1] not in _carry):
+                            # 解决'十三四'的问题, 保留最长的时间
+                            digit_sub -= _zh2digit_base[zh[i-1]]
                         digit_sub += _zh2digit_base[ch]
                 elif digit_sub == 0:
                     # '万千百十'开头
