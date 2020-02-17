@@ -27,7 +27,8 @@ def _transform_base(zh):
                 digit += digit_sub
                 digit_sub = 0
             else:
-                raise ValueError(F"'{ch}' not in [一二两三四五六七八九十百千万]")
+                raise ValueError(
+                        F"'{ch}' not in [一二两三四五六七八九十百千万]")
         digit += digit_sub
         return digit
 
@@ -41,7 +42,7 @@ def _transform_base(zh):
 
 def transform(zh):
     """
-    将用中文大写的数转换成阿拉伯数, 支持最多到99999
+    将用中文大写的数转换成阿拉伯数
 
     Args:
         zh: string, 包含的字符应在[零一二两三四五六七八九十百千万]范围内
