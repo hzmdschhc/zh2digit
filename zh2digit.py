@@ -1,60 +1,50 @@
 # coding=utf-8
 
+_zh2digit_base = dict(zip('零一二两三四五六七八九十百千万',
+    [0, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 10000]))
+_carry = set('十百千万')
 
-_zh2digit_base = dict(zip('零一二两三四五六七八九万千百十',
-    [0, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10000, 1000, 100, 10]))
-_carry = set('万千百十')
-
-def to_digit(zh):
+def transform(zh):
     """
-    将用中文大写的数转换成阿拉伯数
+    将用中文大写的数转换成阿拉伯数, 支持最多到99999
 
     Args:
-        zh: string
+        zh: string, 包含的字符应在[零一二两三四五六七八九十百千万]范围内
 
     Returns:
-        A list, 包含zh中所有中文大写数转换后的数和其它部分
+        int, 转换之后的阿拉伯数
         e.g.
 
-        zh = "有十五个月", 则返回['有', 15, '个月']
+        zh = "十五", 则返回15
     """
-    res = []
+    digit = 0
+    digit_sub = 0
     i = 0
     while i < len(zh):
-        if zh[i] in _zh2digit_base:
-            # 提取中文大写数字
-            digit = 0
-            digit_sub = 0
-            while i < len(zh) and zh[i] in _zh2digit_base:
-                ch = zh[i]
-                if ch not in _carry:
-                    # 是一个数字，不是'万千百十'
-                    if ch != '零':
-                        if (i-1 >= 0
-                            and zh[i-1] in _zh2digit_base
-                            and zh[i-1] not in _carry):
-                            # 解决'十三四'的问题, 保留最长的时间
-                            digit_sub -= _zh2digit_base[zh[i-1]]
-                        digit_sub += _zh2digit_base[ch]
-                elif digit_sub == 0:
-                    # '万千百十'开头
-                    digit_sub = _zh2digit_base[ch]
-                    if ch != '十':
-                        # '万千百'开头
-                        digit += digit_sub
-                        digit_sub = 0
-                else:
-                    # 一个数字后接'万千百十'
-                    digit_sub *= _zh2digit_base[ch]
+        ch = zh[i]
+        if ch in _zh2digit_base:
+            if ch not in _carry:
+                # 是一个数字，不是'万千百十'
+                if ch != '零':
+                    if i-1 >= 0 and zh[i-1] not in _carry:
+                        # 解决'十三四'的问题, 保留最长的时间
+                        digit_sub -= _zh2digit_base[zh[i-1]]
+                    digit_sub += _zh2digit_base[ch]
+            elif digit_sub == 0:
+                # '万千百十'开头
+                digit_sub = _zh2digit_base[ch]
+                if ch != '十':
+                    # '万千百'开头
                     digit += digit_sub
                     digit_sub = 0
-                i += 1
-            digit += digit_sub
-            res.append(digit)
+            else:
+                # 一个数字后接'万千百十'
+                digit_sub *= _zh2digit_base[ch]
+                digit += digit_sub
+                digit_sub = 0
         else:
             # 其它字符
-            start = i
-            while i < len(zh) and zh[i] not in _zh2digit_base:
-                i += 1
-            res.append(zh[start: i])
-    return res
+            raise ValueError("input should be in [零一二两三四五六七八九十百千万]")
+        i += 1
+    digit += digit_sub
+    return digit
