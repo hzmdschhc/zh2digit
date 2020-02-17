@@ -11,6 +11,9 @@ def _transform_base(zh):
         2. 没有'零'
         3. 没有两个基本数字连续出现的情况
         4. 基本数字在[一二两三四五六七八九]范围内
+
+    Raises:
+        ValueError: when char not in [一二两三四五六七八九十百千万]
     """
     def transform_in_10k(text):
         """转换一万以内的标准中文大写数"""
@@ -68,7 +71,7 @@ def transform(zh):
             bag.append(ch)
             previous_is_base = False
         else:
-            # 其它字符，直接忽略
+            # 其它字符，直接忽略，不添加进bag中
             pass
     zh = ''.join(bag)
     digit = _transform_base(zh)
